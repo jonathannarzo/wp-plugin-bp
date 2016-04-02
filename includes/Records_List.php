@@ -1,6 +1,7 @@
-<?php namespace Includes;
+<?php namespace App\Includes;
+
 use WP_List_Table;
-if (!class_exists('WP_List_Table')) require_once(ABSPATH.'wp-admin/includes/class-wp-list-table.php');
+
 class Records_List extends WP_List_Table
 {
 	public function __construct()
@@ -128,13 +129,17 @@ class Records_List extends WP_List_Table
 
 	public function process_bulk_action()
 	{
+		$url = array();
+		foreach ($_GET as $key => $value) if('page' == $key || 'paged' == $key) $url[] = $key.'='.$value;
+		$redirect_url = '?'.implode('&', $url);
+
 		if ( 'delete' === $this->current_action() ) {
 			$nonce = esc_attr( $_REQUEST['_wpnonce'] );
 			if (!wp_verify_nonce( $nonce, 'nonce_delete_record')) {
 				die('zZz...');
 			} else {
 				self::delete_record( absint( $_GET['record'] ) );
-				wp_redirect(esc_url(add_query_arg()));
+				wp_redirect($redirect_url);
 				exit;
 			}
 		}
@@ -143,7 +148,7 @@ class Records_List extends WP_List_Table
 		if ( ( isset( $_POST['action'] ) && $_POST['action'] == 'bulk-delete' ) || ( isset( $_POST['action2'] ) && $_POST['action2'] == 'bulk-delete' ) ) {
 			$delete_ids = esc_sql( $_POST['bulk-delete'] );
 			foreach ( $delete_ids as $id ) self::delete_record($id);
-			wp_redirect(esc_url(add_query_arg()));
+			wp_redirect($redirect_url);
 			exit;
 		}
 	}

@@ -1,17 +1,24 @@
-<?php namespace Includes;
+<?php namespace App\Includes;
 
 class Init_Plugin
 {
 	static $instance;
-
-	// customer WP_List_Table object
-	public $records_obj;
+	public $records_obj; // Records WP_List_Table object
 
 	public function __construct()
 	{
 		ob_start(); // Fix header error
 		add_filter('set-screen-option', [ __CLASS__, 'set_screen' ], 10, 3);
 		add_action('admin_menu', [$this, 'plugin_menu']);
+		add_shortcode(PLUGIN_SHORTCODE, array(__CLASS__, 'shortcode_view'));
+
+		# Styles and Scripts
+		if (is_admin()) add_action('admin_enqueue_scripts', array(__CLASS__, 'load_scripts'));
+		else add_action('wp', array(__CLASS__, 'load_scripts'));
+
+		# Ajax
+		if (is_user_logged_in()) add_action('wp_ajax_plugin_ajax', 'Includes\Ajax_Request::process_ajax');
+		else add_action('wp_ajax_nopriv_plugin_ajax', 'Includes\Ajax_Request::process_ajax');
 	}
 
 	public static function set_screen($status, $option, $value)
@@ -19,12 +26,37 @@ class Init_Plugin
 		return $value;
 	}
 
+	public function screen_option()
+	{
+		$option = 'per_page';
+		$args   = [
+			'label'   => 'Records',
+			'default' => 5,
+			'option'  => 'records_per_page'
+		];
+		add_screen_option($option, $args);
+		$this->records_obj = new Records_List();
+	}
+
+	public static function get_instance()
+	{
+		if (!isset( self::$instance )) self::$instance = new self();
+		return self::$instance;
+	}
+
+	public static function activate_plugin()
+	{
+		Plugin_Tables::init_tables();
+	}
+
+	public static function deactivate_plugin() {}
+
 	public function plugin_menu()
 	{
-		add_menu_page('Plugin Title','Plugin Title','manage_options','pluginunique',[$this, 'plugin_page'], 'dashicons-welcome-widgets-menus');
-		$hook = add_submenu_page('pluginunique', 'List of records', 'Rcord list', 'manage_options', 'pluginunique', [$this, 'plugin_page']);
-		add_submenu_page('pluginunique', 'Add new record', 'Add New', 'manage_options', 'pluginunique_form', 'Includes\Backend::form');		
-		add_action("load-$hook", [$this, 'screen_option']);
+		add_menu_page('Plugin Title','Plugin Title','manage_options','pluginunique', array($this, 'plugin_page'), 'dashicons-welcome-widgets-menus');
+		$hook = add_submenu_page('pluginunique', 'List of records', 'Rcord list', 'manage_options', 'pluginunique', array($this, 'plugin_page'));
+		add_submenu_page('pluginunique', 'Add new record', 'Add New', 'manage_options', 'pluginunique_form', 'App\Includes\Backend::form');		
+		add_action("load-$hook", array($this, 'screen_option'));
 	}
 
 	public function plugin_page()
@@ -54,31 +86,6 @@ class Init_Plugin
 		</div>';
 	}
 
-	public function screen_option()
-	{
-		$option = 'per_page';
-		$args   = [
-			'label'   => 'Records',
-			'default' => 5,
-			'option'  => 'records_per_page'
-		];
-		add_screen_option($option, $args);
-		$this->records_obj = new Records_List();
-	}
-
-	public static function get_instance()
-	{
-		if (!isset( self::$instance )) self::$instance = new self();
-		return self::$instance;
-	}
-
-	public static function activate_plugin()
-	{
-		Plugin_Tables::init_tables();
-	}
-
-	public static function deactivate_plugin() {}
-
 	public static function load_scripts()
 	{
 		wp_enqueue_style('style', PLUGIN_URL.'assets/css/style.css');
@@ -103,17 +110,7 @@ class Init_Plugin
 		wp_enqueue_script('plugin-ajax');
 	}
 
-	public static function start_plugin()
-	{
-		self::pluginShortcode();
-	}
-
-	private function pluginShortcode()
-	{
-		add_shortcode(PLUGIN_SHORTCODE, 'self::shortcode');
-	}
-
-	private function shortcode($args, $content)
+	public static function shortcode_view($args, $content)
 	{
 		echo 'Plugin content from shortcode';
 	}

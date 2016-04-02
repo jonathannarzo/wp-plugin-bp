@@ -1,4 +1,4 @@
-<?php namespace Includes;
+<?php namespace App\Includes;
 
 class Backend
 {
@@ -14,6 +14,7 @@ class Backend
 		$record_id = '';
 
 		if (isset($_GET['action']) && $_GET['action'] == 'edit') {
+			if (isset($_GET['frominsert'])) echo self::alert_message('success', 'Record saved');
 			$id = (int) $_GET['record'];
 			$input = self::find($id);
 			$title = 'Edit Record';
@@ -65,7 +66,12 @@ class Backend
 		$table = Plugin_Tables::tables('table2');
 		$values = array(null, $_POST['name'], $_POST['email']);
 		$query = "INSERT INTO `$table` VALUES (%s,%s,%s)";
-		if ($wpdb->query($wpdb->prepare($query, $values))) echo self::alert_message('success', 'Record saved');
+		if ($wpdb->query($wpdb->prepare($query, $values))) {
+			$record_id = (int) $wpdb->insert_id;
+			$record_url = '?page='.esc_attr($_REQUEST['page']).'&action=edit&record='.$record_id.'&frominsert=true';
+			wp_redirect($record_url);
+			exit;
+		}
 	}
 
 	private static function process_update()

@@ -1,4 +1,4 @@
-<?php namespace Includes;
+<?php namespace App\Includes;
 
 class Frontend
 {
