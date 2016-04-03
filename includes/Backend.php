@@ -17,7 +17,7 @@ class Backend
 			if (isset($_GET['frominsert'])) echo self::alert_message('success', 'Record saved');
 			$id = (int) $_GET['record'];
 			$input = self::find($id);
-			$title = 'Edit Record';
+			$title = 'Edit Record <a href="?page='.$_GET['page'].'" class="page-title-action">Add New</a>';
 			$type = 'update-record'; // Update Record trigger
 			$button_title = 'Update Record';
 			$record_id = '<input type="hidden" name="record_id" value="'.$id.'" />';

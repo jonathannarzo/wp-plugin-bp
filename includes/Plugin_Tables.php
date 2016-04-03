@@ -18,7 +18,7 @@ class Plugin_Tables
 		$queries = array();
 		$queries['table1'] = "CREATE TABLE `$table` (
 			`id` INT (11) NOT NULL AUTO_INCREMENT,
-			`code` VARCHAR(100) NOT NULL UNIQUE,
+			`codes` VARCHAR(100) NOT NULL UNIQUE,
 			PRIMARY KEY (id)
 		);";
 

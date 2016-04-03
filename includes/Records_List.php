@@ -7,8 +7,8 @@ class Records_List extends WP_List_Table
 	public function __construct()
 	{
 		parent::__construct([
-			'singular' => __( 'Record'),
-			'plural'   => __( 'Records'),
+			'singular' => __('Record'),
+			'plural'   => __('Records'),
 			'ajax'     => false
 		]);
 	}

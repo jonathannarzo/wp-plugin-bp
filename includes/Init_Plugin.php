@@ -17,25 +17,13 @@ class Init_Plugin
 		else add_action('wp', array(__CLASS__, 'load_scripts'));
 
 		# Ajax
-		if (is_user_logged_in()) add_action('wp_ajax_plugin_ajax', 'Includes\Ajax_Request::process_ajax');
-		else add_action('wp_ajax_nopriv_plugin_ajax', 'Includes\Ajax_Request::process_ajax');
+		if (is_user_logged_in()) add_action('wp_ajax_plugin_ajax', 'App\Includes\Ajax_Request::process_ajax');
+		else add_action('wp_ajax_nopriv_plugin_ajax', 'App\Includes\Ajax_Request::process_ajax');
 	}
 
 	public static function set_screen($status, $option, $value)
 	{
 		return $value;
-	}
-
-	public function screen_option()
-	{
-		$option = 'per_page';
-		$args   = [
-			'label'   => 'Records',
-			'default' => 5,
-			'option'  => 'records_per_page'
-		];
-		add_screen_option($option, $args);
-		$this->records_obj = new Records_List();
 	}
 
 	public static function get_instance()
@@ -55,8 +43,20 @@ class Init_Plugin
 	{
 		add_menu_page('Plugin Title','Plugin Title','manage_options','pluginunique', array($this, 'plugin_page'), 'dashicons-welcome-widgets-menus');
 		$hook = add_submenu_page('pluginunique', 'List of records', 'Rcord list', 'manage_options', 'pluginunique', array($this, 'plugin_page'));
-		add_submenu_page('pluginunique', 'Add new record', 'Add New', 'manage_options', 'pluginunique_form', 'App\Includes\Backend::form');		
 		add_action("load-$hook", array($this, 'screen_option'));
+		add_submenu_page('pluginunique', 'Add new record', 'Add New', 'manage_options', 'pluginunique_form', 'App\Includes\Backend::form');
+	}
+	
+	public function screen_option()
+	{
+		$option = 'per_page';
+		$args   = [
+			'label'   => 'Records',
+			'default' => 5,
+			'option'  => 'records_per_page'
+		];
+		add_screen_option($option, $args);
+		$this->records_obj = new Records_List();
 	}
 
 	public function plugin_page()
@@ -112,7 +112,12 @@ class Init_Plugin
 
 	public static function shortcode_view($args, $content)
 	{
-		echo 'Plugin content from shortcode';
+		Frontend::view();
+	}
+
+	public static function widget_view()
+	{
+		register_widget('App\Includes\Plugin_Widget');
 	}
 
 }

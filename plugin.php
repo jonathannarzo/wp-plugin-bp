@@ -30,3 +30,5 @@ register_deactivation_hook(__FILE__, 'App\Includes\Init_Plugin::deactivate_plugi
 
 # Start plugin
 add_action('plugins_loaded', function () { App\Includes\Init_Plugin::get_instance(); });
+
+add_action('widgets_init', 'App\Includes\Init_Plugin::widget_view');
