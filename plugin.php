@@ -8,12 +8,14 @@
  * Author URI: http://github.com/jonathannarzo
  */
 
+if (!defined('WPINC')) die;
+
 DEFINE('PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 DEFINE('PLUGIN_URL', plugins_url('/', __FILE__));
 DEFINE('PLUGIN_SHORTCODE', 'startplugin');
 
 # to identifying if user is logged-in or not
-require_once(ABSPATH . 'wp-includes/pluggable.php');
+include(ABSPATH . 'wp-includes/pluggable.php');
 
 # includes
 spl_autoload_register(function ($class) {
